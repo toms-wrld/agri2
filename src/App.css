@@ -1,0 +1,730 @@
+:root {
+  --primary: #2e7d32;
+  --primary-light: #4caf50;
+  --primary-dark: #1b5e20;
+  --secondary: #66bb6a;
+  --background: #f0f2f5;
+  --surface: #ffffff;
+  --text: #1e293b;
+  --text-light: #4b5563;
+  --border: #e2e8f0;
+  --input-bg: #f8fafc;
+  --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-family);
+}
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+}
+
+.navbar {
+  background: linear-gradient(to right, #2e7d32, #388e3c, #2e7d32);
+  padding: 0;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 100;
+}
+
+.navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  pointer-events: none;
+}
+
+.navbar-top {
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.vnit-logo {
+  height: 60px;
+  width: auto;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.dept-info h2 {
+  color: white;
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  margin: 0;
+  text-align: center;
+}
+
+.nav-links {
+  padding: 0.75rem;
+  background: rgba(0, 0, 0, 0.2);
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  backdrop-filter: blur(8px);
+}
+
+.nav-link {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.nav-link:hover::before {
+  transform: translateY(0);
+}
+
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 600;
+}
+
+/* Add particles styles */
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+}
+
+.content-wrapper {
+  flex: 1;
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.calculator {
+  background: white;
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: none;
+  width: 65%;
+  backdrop-filter: blur(8px);
+  padding: 2rem;
+}
+
+.input-group {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid var(--border);
+  transition: all 0.2s ease;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+input, select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: white;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+/* Make editable inputs pop with a subtle shadow and brighter background */
+input:not([readonly]), 
+select {
+  background: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+  border-color: #e5e7eb;
+}
+
+/* Add hover and focus states for editable inputs */
+input:not([readonly]):hover,
+select:hover {
+  border-color: var(--primary-light);
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.08);
+}
+
+input:not([readonly]):focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+/* Make readonly inputs visually distinct */
+.readonly {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: var(--text-light);
+  cursor: not-allowed;
+  font-weight: 500;
+}
+
+.input-with-button {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.defaults-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  white-space: nowrap;
+  margin-top: 1rem;
+}
+
+/* Manual Input Section Styles */
+.manual-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.manual-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+}
+
+.slider.round {
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+.cost-breakdown {
+  margin-top: 1rem;
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid var(--border);
+}
+
+.breakdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  color: var(--primary);
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+
+.breakdown-content {
+  padding: 1rem;
+}
+
+.breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.breakdown-row:last-child {
+  border-bottom: none;
+}
+
+.arrow {
+  font-size: 0.8rem;
+  transition: transform 0.3s ease;
+}
+
+.arrow.up {
+  transform: rotate(180deg);
+}
+
+.arrow.down {
+  transform: rotate(0deg);
+}
+
+.footer {
+  background: var(--primary);
+  color: white;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.footer p {
+  margin: 0.5rem 0;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.modal-header h2 {
+  color: var(--primary);
+  margin: 0;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+}
+
+.save-button {
+  width: 100%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  margin-top: 1rem;
+}
+
+@media (max-width: 1200px) {
+  .calculator {
+    width: 80%;
+  }
+}
+
+@media (max-width: 768px) {
+  .calculator {
+    width: 95%;
+    padding: 1rem;
+  }
+}
+
+/* Update manual inputs style */
+.manual-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.manual-inputs input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: white;
+}
+
+.manual-inputs input::placeholder {
+  color: var(--text-light);
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0 1rem;
+}
+
+.section-title {
+  color: var(--primary);
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.info-button {
+  background: none;
+  border: none;
+  color: var(--primary);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.info-button:hover {
+  background-color: rgba(46, 125, 50, 0.1);
+}
+
+.reminder-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.reminder-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.reminder-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.reminder-header h3 {
+  color: #f59e0b;
+  font-size: 1.5rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.reminder-message {
+  color: var(--text);
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.reminder-actions {
+  display: flex;
+  gap: 1rem;
+  flex-direction: column;
+}
+
+.reminder-actions .primary-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.reminder-actions .primary-button:hover {
+  background: var(--primary-dark);
+}
+
+.reminder-actions .secondary-button {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.reminder-actions .secondary-button:hover {
+  background: var(--input-bg);
+  border-color: var(--text-light);
+}
+
+/* Add these styles for enzyme treatment section */
+.enzyme-costs {
+  background: var(--input-bg);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.enzyme-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.enzyme-row:last-child {
+  border-bottom: none;
+  font-weight: 500;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.enzyme-row span {
+  color: var(--text);
+}
+
+.dept-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.vnit-logo {
+  height: 60px;
+  width: auto;
+}
+
+.nav-links {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.nav-link {
+  background: none;
+  border: 2px solid transparent;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.nav-link.active {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.fym-section, .fodder-section {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.info-tooltip {
+  position: relative;
+  display: inline-block;
+  margin-left: 0.5rem;
+  color: var(--primary);
+  cursor: help;
+}
+
+.tooltip-content {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  background: white;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  width: 300px;
+  z-index: 10;
+  font-size: 0.9rem;
+  color: var(--text);
+  margin-left: 0.5rem;
+}
+
+.info-tooltip:hover .tooltip-content {
+  display: block;
+}
+
+.tooltip-content p {
+  margin: 0.5rem 0;
+}
+
+.tooltip-content p:first-child {
+  margin-top: 0;
+}
+
+.tooltip-content p:last-child {
+  margin-bottom: 0;
+}
+
+/* Update calculator title */
+.calculator h1 {
+  color: white;
+  font-size: 2.25rem;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+  text-align: center;
+  letter-spacing: -0.02em;
+  background: linear-gradient(to right, var(--primary), var(--primary-light));
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin: -1rem -1rem 2rem -1rem;
+}
+
+/* Update other text elements */
+label {
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+input, select {
+  font-family: var(--font-family);
+  font-size: 1rem;
+}
+
+.footer {
+  background: var(--primary);
+  font-weight: 500;
+}
+
+.footer p {
+  font-size: 1rem;
+  opacity: 1;
+}
+
+/* Add hover effect to input groups with editable fields */
+.input-group:has(input:not([readonly])),
+.input-group:has(select) {
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.input-group:has(input:not([readonly])):hover,
+.input-group:has(select):hover {
+  border-color: var(--primary-light);
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.05);
+}
