@@ -304,13 +304,20 @@ function App() {
     return (increasedYieldPerYear * 3.4) / 1000
   }
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    })
+  }
+
   return (
     <div className="app-container">
       <nav className="navbar">
         <div className="navbar-top">
           <div className="logo-container">
             <img src="/vnit-logo.png" alt="VNIT Logo" className="vnit-logo" />
-            <h2 className='vnit-logo-text'>VNIT Chemical Engineering Department</h2>
+            <h2 className='vnit-logo-text'>Department of Chemical Engineering, VNIT</h2>
           </div>
         </div>
         <div className="nav-links">
@@ -464,7 +471,7 @@ function App() {
                   7. Average Milk Yield per Day per Cow (L):
                   <InfoTooltip 
                     description="Average milk production per cow per day"
-                    formula="Total daily milk production ÷ Number of milking cattle"
+                    formula="(Total daily milk production ÷ Number of milking cattle)"
                   />
                   <input
                     type="number"
@@ -589,80 +596,73 @@ function App() {
                     className="readonly"
                   />
                 </label>
-              </div>
 
-              <div className="manual-section">
-                <div className="manual-label">
-                  Manual Input
-                  <InfoTooltip 
-                    description="Toggle to manually enter costs instead of using calculated values"
-                  />
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={formData.useManualCosts}
-                      onChange={(e) => handleInputChange({
-                        target: {
-                          name: 'useManualCosts',
-                          value: e.target.checked
-                        }
-                      })}
-                    />
-                    <span className="slider round"></span>
+                <div className="manual-section">
+                  <label className="manual-label">
+                    <span>Manual Input</span>
+                    <InfoTooltip description="Enable to manually enter costs instead of using calculated values" />
+                    <label className="switch">
+                      <input
+                        type="checkbox"
+                        checked={formData.useManualCosts}
+                        onChange={(e) => setFormData(prev => ({...prev, useManualCosts: e.target.checked}))}
+                      />
+                      <span className="slider round"></span>
+                    </label>
                   </label>
+
+                  {formData.useManualCosts && (
+                    <div className="manual-inputs">
+                      <input
+                        type="number"
+                        name="shredding"
+                        placeholder="Shredding cost"
+                        value={formData.manualCosts?.shredding || ''}
+                        onChange={handleManualCostChange}
+                      />
+                      <input
+                        type="number"
+                        name="bajrangBan"
+                        placeholder="Bajrang ban cost"
+                        value={formData.manualCosts?.bajrangBan || ''}
+                        onChange={handleManualCostChange}
+                      />
+                      <input
+                        type="number"
+                        name="labor"
+                        placeholder="Labor cost"
+                        value={formData.manualCosts?.labor || ''}
+                        onChange={handleManualCostChange}
+                      />
+                    </div>
+                  )}
                 </div>
 
-                {formData.useManualCosts ? (
-                  <div className="manual-inputs">
-                    <input
-                      type="number"
-                      name="shredding"
-                      placeholder="Shredding cost"
-                      value={formData.manualCosts?.shredding || ''}
-                      onChange={handleManualCostChange}
-                    />
-                    <input
-                      type="number"
-                      name="bajrangBan"
-                      placeholder="Bajrang ban cost"
-                      value={formData.manualCosts?.bajrangBan || ''}
-                      onChange={handleManualCostChange}
-                    />
-                    <input
-                      type="number"
-                      name="labor"
-                      placeholder="Labor cost"
-                      value={formData.manualCosts?.labor || ''}
-                      onChange={handleManualCostChange}
-                    />
+                <div 
+                  className="cost-breakdown"
+                  onClick={() => setIsBreakdownVisible(!isBreakdownVisible)}
+                >
+                  <div className="breakdown-header">
+                    Show Cost Breakdown
+                    <span className={`arrow ${isBreakdownVisible ? 'up' : 'down'}`}>▼</span>
                   </div>
-                ) : (
-                  <div className="cost-breakdown">
-                    <div 
-                      className="breakdown-header"
-                      onClick={() => setIsBreakdownVisible(!isBreakdownVisible)}
-                    >
-                      <span>{isBreakdownVisible ? 'Hide' : 'Show'} Cost Breakdown</span>
-                      <span className={`arrow ${isBreakdownVisible ? 'up' : 'down'}`}>▼</span>
-                    </div>
-                    {isBreakdownVisible && (
-                      <div className="breakdown-content">
-                        <div className="breakdown-row">
-                          <span>Shredding Cost:</span>
-                          <span>₹{calculateShredding()}</span>
-                        </div>
-                        <div className="breakdown-row">
-                          <span>Bajrang Ban Cost:</span>
-                          <span>₹{calculateBajrangBan()}</span>
-                        </div>
-                        <div className="breakdown-row">
-                          <span>Labor Cost:</span>
-                          <span>₹{calculateLabor()}</span>
-                        </div>
+                  {isBreakdownVisible && (
+                    <div className="breakdown-content">
+                      <div className="breakdown-row">
+                        <span>Shredding Cost:</span>
+                        <span>₹{calculateShredding()}</span>
                       </div>
-                    )}
-                  </div>
-                )}
+                      <div className="breakdown-row">
+                        <span>Bajrang Ban Cost:</span>
+                        <span>₹{calculateBajrangBan()}</span>
+                      </div>
+                      <div className="breakdown-row">
+                        <span>Labor Cost:</span>
+                        <span>₹{calculateLabor()}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="next-section-container">
@@ -670,6 +670,7 @@ function App() {
                   className="next-section-button"
                   onClick={() => {
                     setActiveSection('fodder')
+                    scrollToTop()
                     if (!isPreviousSectionComplete()) {
                       setShowReminder(true)
                     }
@@ -946,6 +947,7 @@ function App() {
                   className="next-section-button"
                   onClick={() => {
                     setActiveSection('analytics')
+                    scrollToTop()
                     if (!isPreviousSectionComplete() || !isFodderSectionComplete()) {
                       setShowReminder(true)
                     }
