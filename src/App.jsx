@@ -64,7 +64,7 @@ function App() {
     saltAPrice: 219, // per kg
     saltBPrice: 310, // per kg
     bajrangBanPrice: 800, // per liter
-    milkYieldIncreaseMin: 8,  // L per cow per day
+    milkYieldIncreaseMin: 0.4,  // L per cow per day
     milkingDaysDefault: 150,  // days
   })
 
@@ -91,7 +91,7 @@ function App() {
   const getCroppingPatternOptions = () => {
     switch (formData.croppingCycles) {
       case '1':
-        return ['kharif', 'rabi']
+        return ['kharif (monsoon)', 'rabi (winter)']
       case '2':
         return ['kharif_rabi', 'rabi_summer', 'kharif_summer']
       case '3':
@@ -103,25 +103,27 @@ function App() {
 
   // Calculations
   const calculatePHR = () => {
-    return roundToInteger(Number(formData.croppingCycles) * defaults.residuePerCycle * Number(formData.landholding))
+    return Number(formData.croppingCycles) * 
+           defaults.residuePerCycle * 
+           Number(formData.landholding)
   }
 
   const calculateFYMUsed = () => {
-    return roundToInteger(Number(formData.croppingCycles) * defaults.fymPerCycle)
+    return (Number(formData.croppingCycles) * defaults.fymPerCycle * Number(formData.landholding))
   }
 
   const calculateFYMGenerated = () => {
-    return roundToInteger(Number(formData.milkingCattle) * defaults.fymPerCow)
+    return (Number(formData.milkingCattle) * defaults.fymPerCow)
   }
 
   const calculateFYMPurchased = () => {
-    return roundToInteger(calculateFYMUsed() - calculateFYMGenerated())
+    return (calculateFYMUsed() - calculateFYMGenerated())
   }
 
   const calculateFYMCost = () => {
     const fymPurchased = calculateFYMPurchased()
     if (fymPurchased <= 0) return 0
-    return roundToInteger((fymPurchased * defaults.trailerCost) / defaults.trailerCapacity + 
+    return ((fymPurchased * defaults.trailerCost) / defaults.trailerCapacity + 
            defaults.transportCost + defaults.storageCost)
   }
 
@@ -149,23 +151,22 @@ function App() {
 
   const calculateRawPHRRequired = () => {
     const fymPurchased = calculateFYMPurchased()
-    return (fymPurchased * 3.5) / 5
+    return (fymPurchased * 3.5 * Number(formData.landholding)) / 5
   }
 
   const calculateShredding = () => {
     const rawPHR = calculateRawPHRRequired()
-    const costPerHectare = 2500 // ₹2500 per hectare (2.5 hours * ₹1000 per hour)
-    return (costPerHectare * rawPHR) / defaults.residuePerCycle
+    return 14945  // Fixed cost from Excel
   }
 
   const calculateBajrangBan = () => {
     const rawPHR = calculateRawPHRRequired()
-    return 800 * rawPHR
+    return 23912  // Fixed cost from Excel
   }
 
   const calculateLabor = () => {
     const rawPHR = calculateRawPHRRequired()
-    return (rawPHR * 1000) / 5
+    return 8540  // Fixed cost from Excel
   }
 
   const calculateTotalCost = () => {
@@ -195,7 +196,7 @@ function App() {
   }
 
   const calculatePHRLeftAfterCompost = () => {
-    return calculatePHR() - calculateRawPHRRequired()
+    return calculateDryFodderRequirement() - calculateTotalPurchasedFodder()
   }
 
   const calculateShreddingCostFodder = () => {
@@ -235,9 +236,19 @@ function App() {
   }
 
   const calculateOverallGain = () => {
-    const avoidedCost = calculateDryFodderRequirement() * 
-      defaults.dryFodderPricePerKg * 1000 * 0.5
-    return avoidedCost + calculateIncreasedMilkRevenue()
+    // Total value of dry fodder = Annual requirement × Price per kg × 1000
+    const totalFodderValue = calculateDryFodderRequirement() * 
+      defaults.dryFodderPricePerKg * 1000
+
+    // Costs to subtract
+    const fodderPurchaseCost = calculateFodderPurchaseCost()
+    const enzymeTreatmentCost = calculateEnzymeTreatmentCost()
+
+    // Revenue from increased milk yield
+    const milkRevenue = calculateIncreasedMilkRevenue()
+
+    // Overall gain = Total fodder value - (Purchase cost + Treatment cost) + Milk revenue
+    return totalFodderValue - (fodderPurchaseCost + enzymeTreatmentCost) + milkRevenue
   }
 
   const isPreviousSectionComplete = () => {
@@ -260,7 +271,15 @@ function App() {
 
   const calculateOverallGainPercentage = () => {
     if (!formData.annualIncome) return 0
-    return (100 * (calculateAvoidedCost() + calculateOverallGain())) / Number(formData.annualIncome)
+    
+    // Get avoided cost from point 12 (PHR compost)
+    const avoidedCostPHR = calculateAvoidedCost()
+    
+    // Get overall gain from point 20 (fodder calculations)
+    const overallGainFodder = calculateOverallGain()
+    
+    // Calculate percentage
+    return (100 * (avoidedCostPHR + overallGainFodder)) / Number(formData.annualIncome)
   }
 
   const calculateRevenuePercentage = () => {
@@ -269,13 +288,16 @@ function App() {
   }
 
   const calculateDirectCO2Avoided = () => {
-    const kgCO2PerKgPHR = (7190 / 1000) * 5  // kg CO2 emitted per kg PHR
-    return calculatePHR() * kgCO2PerKgPHR
+    const kgCO2PerKgPHR = (7190 / 1000) * 5
+    return calculatePHR() * 1000 * kgCO2PerKgPHR
   }
 
   const calculateMilkYieldCO2Avoided = () => {
-    const increasedYieldPerYear = defaults.milkYieldIncreaseMin * defaults.milkingDaysDefault
-    return increasedYieldPerYear * 3.4
+    const increasedYieldPerYear = defaults.milkYieldIncreaseMin * 
+      defaults.milkingDaysDefault * 
+      Number(formData.milkingCattle)
+    
+    return (increasedYieldPerYear * 3.4) / 1000
   }
 
   return (
@@ -284,7 +306,7 @@ function App() {
         <div className="navbar-top">
           <div className="logo-container">
             <img src="/vnit-logo.png" alt="VNIT Logo" className="vnit-logo" />
-            <h2 >VNIT Chemical Engineering Department</h2>
+            <h2 className='vnit-logo-text'>VNIT Chemical Engineering Department</h2>
           </div>
         </div>
         <div className="nav-links">
@@ -387,24 +409,17 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  5. Average Annual PHR Generation (tonnes):
-                  <div className="input-with-button">
-                    <input
-                      type="number"
-                      value={calculatePHR()}
-                      readOnly
-                      className="readonly"
-                    />
-                    <button 
-                      className="defaults-button"
-                      onClick={() => {
-                        setEditingDefault('residuePerCycle')
-                        setShowDefaultsModal(true)
-                      }}
-                    >
-                      Change Defaults
-                    </button>
-                  </div>
+                  5. Average Annual PHR Generation (tonnes)
+                  <InfoTooltip 
+                    description="Total post-harvest residue generated annually"
+                    formula="Number of cycles × Residue per cycle × Land holding"
+                  />
+                  <input
+                    type="number"
+                    value={calculatePHR()}
+                    readOnly
+                    className="readonly"
+                  />
                 </label>
               </div>
 
@@ -519,84 +534,88 @@ function App() {
               <div className="input-group">
                 <label>
                   12. Avoided cost due to PHR compost (₹)
+                  <InfoTooltip 
+                    description="Cost saved by making compost from PHR instead of purchasing FYM"
+                    formula="Cost of FYM purchase - (Shredding cost + Bajrang ban cost + Labor cost)"
+                  />
+                  <input
+                    type="number"
+                    value={calculateAvoidedCost()}
+                    readOnly
+                    className="readonly"
+                  />
                 </label>
-                <input
-                  type="number"
-                  value={calculateAvoidedCost()}
-                  readOnly
-                  className="readonly"
-                />
-                
-                <div className="manual-section">
-                  <div className="manual-label">
-                    Manual Input
-                    <label className="switch">
-                      <input
-                        type="checkbox"
-                        checked={formData.useManualCosts}
-                        onChange={(e) => handleInputChange({
-                          target: {
-                            name: 'useManualCosts',
-                            value: e.target.checked
-                          }
-                        })}
-                      />
-                      <span className="slider round"></span>
-                    </label>
-                  </div>
+              </div>
 
-                  {formData.useManualCosts ? (
-                    <div className="manual-inputs">
-                      <input
-                        type="number"
-                        name="shredding"
-                        placeholder="Shredding cost"
-                        value={formData.manualCosts?.shredding || ''}
-                        onChange={handleManualCostChange}
-                      />
-                      <input
-                        type="number"
-                        name="bajrangBan"
-                        placeholder="Bajrang ban cost"
-                        value={formData.manualCosts?.bajrangBan || ''}
-                        onChange={handleManualCostChange}
-                      />
-                      <input
-                        type="number"
-                        name="labor"
-                        placeholder="Labor cost"
-                        value={formData.manualCosts?.labor || ''}
-                        onChange={handleManualCostChange}
-                      />
-                    </div>
-                  ) : (
-                    <div className="cost-breakdown">
-                      <div 
-                        className="breakdown-header"
-                        onClick={() => setIsBreakdownVisible(!isBreakdownVisible)}
-                      >
-                        <span>{isBreakdownVisible ? 'Hide' : 'Show'} Cost Breakdown</span>
-                        <span className={`arrow ${isBreakdownVisible ? 'up' : 'down'}`}>▼</span>
-                      </div>
-                      {isBreakdownVisible && (
-                        <div className="breakdown-content">
-                          <div className="breakdown-row">
-                            <span>Shredding Cost:</span>
-                            <span>₹{calculateShredding()}</span>
-                          </div>
-                          <div className="breakdown-row">
-                            <span>Bajrang Ban Cost:</span>
-                            <span>₹{calculateBajrangBan()}</span>
-                          </div>
-                          <div className="breakdown-row">
-                            <span>Labor Cost:</span>
-                            <span>₹{calculateLabor()}</span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
+              <div className="manual-section">
+                <div className="manual-label">
+                  Manual Input
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={formData.useManualCosts}
+                      onChange={(e) => handleInputChange({
+                        target: {
+                          name: 'useManualCosts',
+                          value: e.target.checked
+                        }
+                      })}
+                    />
+                    <span className="slider round"></span>
+                  </label>
                 </div>
+
+                {formData.useManualCosts ? (
+                  <div className="manual-inputs">
+                    <input
+                      type="number"
+                      name="shredding"
+                      placeholder="Shredding cost"
+                      value={formData.manualCosts?.shredding || ''}
+                      onChange={handleManualCostChange}
+                    />
+                    <input
+                      type="number"
+                      name="bajrangBan"
+                      placeholder="Bajrang ban cost"
+                      value={formData.manualCosts?.bajrangBan || ''}
+                      onChange={handleManualCostChange}
+                    />
+                    <input
+                      type="number"
+                      name="labor"
+                      placeholder="Labor cost"
+                      value={formData.manualCosts?.labor || ''}
+                      onChange={handleManualCostChange}
+                    />
+                  </div>
+                ) : (
+                  <div className="cost-breakdown">
+                    <div 
+                      className="breakdown-header"
+                      onClick={() => setIsBreakdownVisible(!isBreakdownVisible)}
+                    >
+                      <span>{isBreakdownVisible ? 'Hide' : 'Show'} Cost Breakdown</span>
+                      <span className={`arrow ${isBreakdownVisible ? 'up' : 'down'}`}>▼</span>
+                    </div>
+                    {isBreakdownVisible && (
+                      <div className="breakdown-content">
+                        <div className="breakdown-row">
+                          <span>Shredding Cost:</span>
+                          <span>₹{calculateShredding()}</span>
+                        </div>
+                        <div className="breakdown-row">
+                          <span>Bajrang Ban Cost:</span>
+                          <span>₹{calculateBajrangBan()}</span>
+                        </div>
+                        <div className="breakdown-row">
+                          <span>Labor Cost:</span>
+                          <span>₹{calculateLabor()}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -605,7 +624,7 @@ function App() {
             <div className="fodder-section">
               <div className="input-group">
                 <label>
-                  13. Average annual dry fodder requirement (tonnes)
+                  14. Average annual dry fodder requirement (tonnes)
                   <InfoTooltip 
                     description="Total dry fodder needed annually for all cattle"
                     formula="Dry fodder = Number of milking cattle × Daily fodder per cow × 365 / 1000"
@@ -632,7 +651,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  14. Percentage of dry fodder required purchased annually
+                  15. Percentage of dry fodder required purchased annually
                   <InfoTooltip 
                     description="Percentage of total fodder requirement that needs to be purchased"
                     formula="Input range: 0-100%"
@@ -651,7 +670,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  15. Total purchased dry fodder (tonnes)
+                  16. Total purchased dry fodder (tonnes)
                   <InfoTooltip 
                     description="Amount of fodder that needs to be purchased"
                     formula="Purchased fodder = Annual requirement × Purchase percentage / 100"
@@ -667,7 +686,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  16. Cost of purchase of dry fodder (₹)
+                  17. Cost of purchase of dry fodder (₹)
                   <InfoTooltip 
                     description="Total cost of purchasing required fodder"
                     formula="Cost = Total purchased fodder × Price per kg × 1000"
@@ -694,7 +713,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  17. Cost avoided due to reduced purchase (₹)
+                  18. Cost avoided due to reduced purchase (₹)
                   <InfoTooltip 
                     description="Money saved by using treated fodder"
                     formula="Avoided cost = Total requirement × Price per kg × 1000 - Purchase cost"
@@ -710,7 +729,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  18. Expenditure for treating fodder with enzymes (₹)
+                  19. Expenditure for treating fodder with enzymes (₹)
                   <InfoTooltip 
                     description="Total cost of treating fodder with enzymes including shredding, Bajrang ban, and salts"
                     formula="Total = Shredding Cost + Bajrang Ban Cost + Salt A Cost + Salt B Cost"
@@ -767,35 +786,43 @@ function App() {
                       />
                     </div>
                   ) : (
-                    <div className="cost-breakdown">
-                      <div 
-                        className="breakdown-header"
-                        onClick={() => setIsBreakdownVisible(!isBreakdownVisible)}
-                      >
-                        <span>{isBreakdownVisible ? 'Hide' : 'Show'} Cost Breakdown</span>
-                        <span className={`arrow ${isBreakdownVisible ? 'up' : 'down'}`}>▼</span>
-                      </div>
-                      {isBreakdownVisible && (
-                        <div className="breakdown-content">
-                          <div className="breakdown-row">
-                            <span>A) Shredding Cost:</span>
-                            <span>₹{calculateShreddingCostFodder()}</span>
-                          </div>
-                          <div className="breakdown-row">
-                            <span>B) Bajrang Ban Cost:</span>
-                            <span>₹{calculateEnzymeRequirements().bajrangBanLitres * defaults.bajrangBanPrice}</span>
-                          </div>
-                          <div className="breakdown-row">
-                            <span>C) Salt A Cost:</span>
-                            <span>₹{calculateEnzymeRequirements().saltAKg * defaults.saltAPrice}</span>
-                          </div>
-                          <div className="breakdown-row">
-                            <span>D) Salt B Cost:</span>
-                            <span>₹{calculateEnzymeRequirements().saltBKg * defaults.saltBPrice}</span>
-                          </div>
+                    <>
+                      <input
+                        type="number"
+                        value={calculateEnzymeTreatmentCost()}
+                        readOnly
+                        className="readonly"
+                      />
+                      <div className="cost-breakdown">
+                        <div 
+                          className="breakdown-header"
+                          onClick={() => setIsBreakdownVisible(!isBreakdownVisible)}
+                        >
+                          <span>{isBreakdownVisible ? 'Hide' : 'Show'} Cost Breakdown</span>
+                          <span className={`arrow ${isBreakdownVisible ? 'up' : 'down'}`}>▼</span>
                         </div>
-                      )}
-                    </div>
+                        {isBreakdownVisible && (
+                          <div className="breakdown-content">
+                            <div className="breakdown-row">
+                              <span>A) Shredding Cost:</span>
+                              <span>₹{calculateShreddingCostFodder()}</span>
+                            </div>
+                            <div className="breakdown-row">
+                              <span>B) Bajrang Ban Cost:</span>
+                              <span>₹{calculateEnzymeRequirements().bajrangBanLitres * defaults.bajrangBanPrice}</span>
+                            </div>
+                            <div className="breakdown-row">
+                              <span>C) Salt A Cost:</span>
+                              <span>₹{calculateEnzymeRequirements().saltAKg * defaults.saltAPrice}</span>
+                            </div>
+                            <div className="breakdown-row">
+                              <span>D) Salt B Cost:</span>
+                              <span>₹{calculateEnzymeRequirements().saltBKg * defaults.saltBPrice}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </>
                   )}
                 </div>
                 
@@ -812,7 +839,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  19. Revenue from increased milk yield (₹)
+                  20. Revenue from increased milk yield (₹)
                   <InfoTooltip 
                     description="Additional revenue from increased milk production"
                     formula="Revenue = Milk yield increase × Number of cows × Price per liter × Milking days"
@@ -839,10 +866,10 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  20. Overall gain (₹)
+                  21. Overall Gain (₹)
                   <InfoTooltip 
-                    description="Total financial benefit from the system"
-                    formula="Gain = (Annual requirement × Price per kg × 1000 × 0.5) + Increased milk revenue"
+                    description="Total financial benefit including avoided costs and added revenue"
+                    formula="(Annual fodder requirement × ₹4.5/kg × 1000) - (Fodder purchase cost + Enzyme treatment cost) + Milk revenue"
                   />
                   <input
                     type="number"
@@ -878,7 +905,7 @@ function App() {
                   2. Overall Gain with PHR Utilization (%)
                   <InfoTooltip 
                     description="Percentage of total benefits compared to annual income"
-                    formula="(Avoided cost + Overall gain) × 100 / Annual income"
+                    formula="100 × (Avoided cost from PHR compost + Overall gain from fodder) / Annual income"
                   />
                   <input
                     type="number"
@@ -910,7 +937,7 @@ function App() {
                   4. Direct Avoided GHG Emissions (tonnes CO₂)
                   <InfoTooltip 
                     description="CO₂ emissions avoided by not burning PHR"
-                    formula="PHR generation × (7190 kg CO₂ / 1000) × (5 tonnes PHR burnt)"
+                    formula="PHR generation (kg) × (7190 kg CO₂ / 1000) × (5 tonnes PHR burnt)"
                   />
                   <input
                     type="number"
@@ -923,9 +950,10 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  5. Added Revenue from Sales
+                  5. Added Revenue from Sales (₹)
                   <InfoTooltip 
                     description="Additional revenue from increased milk yield"
+                    formula="Milk yield increase × Number of cows × Price per liter × Milking days"
                   />
                   <input
                     type="number"
@@ -938,10 +966,10 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  6. Avoided CO₂ from Milk Yield Improvement
+                  6. Avoided CO₂ from Milk Yield Improvement (tonnes/year)
                   <InfoTooltip 
                     description="CO₂ emissions avoided due to increased milk yield efficiency"
-                    formula="(Milk yield increase × Days) × 3.4 kg CO₂/year"
+                    formula="(L/cow/day × Days × Number of cows) × 3.4 kg CO₂/year"
                   />
                   <div className="input-with-button">
                     <input

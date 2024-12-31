@@ -29,7 +29,7 @@
 .navbar {
   background: linear-gradient(to right, #2e7d32, #388e3c, #2e7d32);
   padding: 0;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 100;
 }
@@ -41,23 +41,24 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+  background: linear-gradient(45deg, rgba(255,255,255,0.1) 10%, rgba(255,255,255,0) 50%);
   pointer-events: none;
 }
 
 .navbar-top {
-  padding: 1.5rem 2rem;
+  padding: 1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  gap: 0rem;
+  border-bottom: 0px solid rgba(255, 255, 255, 0.15);
 }
 
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 2.5rem;
+  gap: 5.5rem;
+  zoom: 1.25;
 }
 
 .vnit-logo {
@@ -143,9 +144,40 @@
   border-radius: 1.5rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: none;
-  width: 65%;
+  width: 70%;
   backdrop-filter: blur(8px);
   padding: 2rem;
+}
+
+.vnit-logo-text {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: white;
+  text-decoration: none;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  padding: 0.2em 0;
+}
+
+.vnit-logo-text::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, 
+    transparent 0%,
+    rgb(139, 176, 123) 50%,
+    transparent 100%
+  );
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+.vnit-logo-text:hover::after {
+  transform: scaleX(1);
 }
 
 .input-group {
@@ -682,7 +714,7 @@ input:checked + .slider:before {
 /* Update calculator title */
 .calculator h1 {
   color: white;
-  font-size: 2.25rem;
+  font-size: 1.45rem;
   font-weight: 600;
   margin-bottom: 2.5rem;
   text-align: center;
