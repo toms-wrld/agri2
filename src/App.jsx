@@ -664,6 +664,20 @@ function App() {
                   </div>
                 )}
               </div>
+
+              <div className="next-section-container">
+                <button 
+                  className="next-section-button"
+                  onClick={() => {
+                    setActiveSection('fodder')
+                    if (!isPreviousSectionComplete()) {
+                      setShowReminder(true)
+                    }
+                  }}
+                >
+                  Next: Fodder Calculations →
+                </button>
+              </div>
             </div>
           )}
           
@@ -925,6 +939,20 @@ function App() {
                     className="readonly"
                   />
                 </label>
+              </div>
+
+              <div className="next-section-container">
+                <button 
+                  className="next-section-button"
+                  onClick={() => {
+                    setActiveSection('analytics')
+                    if (!isPreviousSectionComplete() || !isFodderSectionComplete()) {
+                      setShowReminder(true)
+                    }
+                  }}
+                >
+                  Next: Impact Analytics →
+                </button>
               </div>
             </div>
           )}

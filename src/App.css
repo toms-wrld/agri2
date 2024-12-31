@@ -763,3 +763,116 @@ input, select {
   box-shadow: 0 4px 12px rgba(46, 125, 50, 0.05);
 }
 
+/* Mobile-specific styles */
+@media (max-width: 480px) {
+  /* Adjust navbar for mobile */
+  .navbar-top {
+    padding: 0.5rem;
+  }
+
+  .logo-container {
+    gap: 1rem;
+  }
+
+  .vnit-logo {
+    height: 40px;
+  }
+
+  .dept-info h2 {
+    font-size: 1.5rem;
+  }
+
+  /* Make calculator take full width on mobile */
+  .calculator {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  /* Adjust input groups for mobile */
+  .input-group {
+    padding: 1rem;
+  }
+
+  /* Stack input and button vertically on mobile */
+  .input-with-button {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .input-with-button input {
+    width: 100%;
+  }
+
+  .defaults-button {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  /* Adjust tooltip position for mobile */
+  .tooltip-content {
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    width: 90vw;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  /* Adjust nav links for mobile */
+  .nav-links {
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.5rem;
+  }
+
+  .nav-link {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Next Section Button Styles */
+.next-section-button {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
+}
+
+.next-section-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.2);
+}
+
+.next-section-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Mobile adjustments for next section button */
+@media (max-width: 500px) {
+  .next-section-button {
+    max-width: none;
+    margin: 1.5rem 0;
+    padding: 0.875rem;
+    font-size: 0.8rem;
+  }
+}
+
