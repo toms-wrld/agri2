@@ -291,8 +291,9 @@ function App() {
   }
 
   const calculateDirectCO2Avoided = () => {
-    const kgCO2PerKgPHR = (7190 / 1000) * 5
-    return calculatePHR() * 1000 * kgCO2PerKgPHR
+    const tonCO2PertonPHR = (7190 /( 1000 * 5))
+    const annualPHR = calculatePHR()
+    return annualPHR * tonCO2PertonPHR
   }
 
   const calculateMilkYieldCO2Avoided = () => {
@@ -980,10 +981,10 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  4. Direct Avoided GHG Emissions (tonnes CO₂)
+                  4. Direct Avoided GHG Emissions Annually (tonnes CO₂)
                   <InfoTooltip 
                     description="CO₂ emissions avoided by not burning PHR"
-                    formula="PHR generation (kg) × (7190 kg CO₂ / 1000) × (5 tonnes PHR burnt)"
+                    formula="annual PHR generation (tonnes) × (7190 kg CO₂ / (1000 × 5 tonnes PHR burnt))"
                   />
                   <input
                     type="number"
@@ -996,7 +997,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  5. Added Revenue from Sales (₹)
+                  5. Added Revenue from Sales Annually (₹)
                   <InfoTooltip 
                     description="Additional revenue from increased milk yield"
                     formula="Milk yield increase × Number of cows × Price per liter × Milking days"
@@ -1012,7 +1013,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  6. Avoided CO₂ from Milk Yield Improvement (tonnes/year)
+                  6. Avoided CO₂ from Milk Yield Improvement Annually (tonnes/year)
                   <InfoTooltip 
                     description="CO₂ emissions avoided due to increased milk yield efficiency"
                     formula="(Litres per cow per day × Number of days × Number of cows) × 3.4 kg CO₂/year"
