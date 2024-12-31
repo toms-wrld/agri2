@@ -51,11 +51,11 @@ function App() {
   const [defaults, setDefaults] = useState({
     residuePerCycle: 5, // tonnes
     fymPerCycle: 5, // tonnes
-    fymPerCow: 0.73, // tonnes
+    fymPerCow: ((0.2 * 10) * 365) / 1000, // tonnes per cow per year
     trailerCost: 3000, // rupees
     trailerCapacity: 1.5, // tonnes
-    transportCost: 10000, // rupees
-    storageCost: 2000, // rupees
+    transportCost: 0, // rupees
+    storageCost: 0, // rupees
     dryFodderPerCow: 3.5, // kg per day
     milkDaysAnnually: 150,
     milkPricePerLiter: 35,
@@ -156,17 +156,20 @@ function App() {
 
   const calculateShredding = () => {
     const rawPHR = calculateRawPHRRequired()
-    return 14945  // Fixed cost from Excel
+    const fymPurchased = calculateFYMPurchased()
+    return (2500*0.7*fymPurchased)/(Number(formData.croppingCycles)*Number(formData.landholding))  // Fixed cost from Excel
   }
 
   const calculateBajrangBan = () => {
     const rawPHR = calculateRawPHRRequired()
-    return 23912  // Fixed cost from Excel
+    const fymPurchased = calculateFYMPurchased()
+    return 800*0.7*fymPurchased  // Fixed cost from Excel
   }
 
   const calculateLabor = () => {
     const rawPHR = calculateRawPHRRequired()
-    return 8540  // Fixed cost from Excel
+    const fymPurchased = calculateFYMPurchased()
+    return 1000*fymPurchased/5  // Fixed cost from Excel
   }
 
   const calculateTotalCost = () => {
@@ -352,6 +355,9 @@ function App() {
               <div className="input-group">
                 <label>
                   1. Land Holding (ha):
+                  <InfoTooltip 
+                    description="Enter your total agricultural land area in hectares"
+                  />
                   <input
                     type="number"
                     name="landholding"
@@ -366,6 +372,10 @@ function App() {
               <div className="input-group">
                 <label>
                   2. Farmer Category:
+                  <InfoTooltip 
+                    description="Automatically determined based on land holding"
+                    formula="Marginal: < 1 ha | Small: 1-2 ha | Small-Medium: 2-4 ha | Large: > 4 ha"
+                  />
                   <input
                     type="text"
                     value={formData.farmerCategory}
@@ -378,6 +388,10 @@ function App() {
               <div className="input-group">
                 <label>
                   3. Number of Cropping Cycles:
+                  <InfoTooltip 
+                    description="Number of crop cycles per year"
+                    formula="1 cycle: Single season | 2 cycles: Dual season | 3 cycles: Triple season"
+                  />
                   <select
                     name="croppingCycles"
                     value={formData.croppingCycles}
@@ -393,6 +407,10 @@ function App() {
               <div className="input-group">
                 <label>
                   4. Cropping Pattern:
+                  <InfoTooltip 
+                    description="Select your cropping pattern based on seasons"
+                    formula="Kharif: Monsoon (Jun-Oct) | Rabi: Winter (Oct-Mar) | Summer (Mar-Jun)"
+                  />
                   <select
                     name="croppingPattern"
                     value={formData.croppingPattern}
@@ -426,6 +444,10 @@ function App() {
               <div className="input-group">
                 <label>
                   6. Number of Milking Cattle:
+                  <InfoTooltip 
+                    description="Enter the total number of milking cattle in your farm"
+                    formula="Only include actively milking cattle"
+                  />
                   <input
                     type="number"
                     name="milkingCattle"
@@ -439,6 +461,10 @@ function App() {
               <div className="input-group">
                 <label>
                   7. Average Milk Yield per Day per Cow (L):
+                  <InfoTooltip 
+                    description="Average milk production per cow per day"
+                    formula="Total daily milk production ÷ Number of milking cattle"
+                  />
                   <input
                     type="number"
                     name="milkYield"
@@ -453,6 +479,10 @@ function App() {
               <div className="input-group">
                 <label>
                   8. FYM Used Annually (tonnes):
+                  <InfoTooltip 
+                    description="Total Farm Yard Manure used per year"
+                    formula="Number of cycles × FYM per cycle × Land holding"
+                  />
                   <div className="input-with-button">
                     <input
                       type="number"
@@ -476,6 +506,11 @@ function App() {
               <div className="input-group">
                 <label>
                   9. FYM Generated In-house Annually (tonnes):
+                  <InfoTooltip 
+                    description="FYM generated by cow(s) annually"
+                    formula=<>(20% efficiency × 10 kg cowdung per cow per day × 365 days x number of cows) / 1000 = 0.73 tonnes/year x number of cows
+                            <br />(Assumes 20 kg cowdung/day/cow, out of which 50% is used for FYM, 20% conversion efficiency of cowdung to FYM)</>
+                  />
                   <div className="input-with-button">
                     <input
                       type="number"
@@ -499,6 +534,10 @@ function App() {
               <div className="input-group">
                 <label>
                   10. FYM Purchased Annually (tonnes):
+                  <InfoTooltip 
+                    description="Additional FYM needed to be purchased"
+                    formula="FYM Used - FYM Generated (if positive)"
+                  />
                   <input
                     type="number"
                     value={calculateFYMPurchased()}
@@ -510,7 +549,11 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  11. Cost of FYM Purchase (₹):
+                  11. Cost of Annual FYM Purchase (₹):
+                  <InfoTooltip 
+                    description="Total cost of purchasing required FYM"
+                    formula="(FYM purchased × Trailer cost / Trailer capacity) + Transport cost + Storage cost"
+                  />
                   <div className="input-with-button">
                     <input
                       type="number"
@@ -533,7 +576,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  12. Avoided cost due to PHR compost (₹)
+                  12. Avoided Annual Cost due to PHR compost (₹)
                   <InfoTooltip 
                     description="Cost saved by making compost from PHR instead of purchasing FYM"
                     formula="Cost of FYM purchase - (Shredding cost + Bajrang ban cost + Labor cost)"
@@ -550,6 +593,9 @@ function App() {
               <div className="manual-section">
                 <div className="manual-label">
                   Manual Input
+                  <InfoTooltip 
+                    description="Toggle to manually enter costs instead of using calculated values"
+                  />
                   <label className="switch">
                     <input
                       type="checkbox"
@@ -969,7 +1015,7 @@ function App() {
                   6. Avoided CO₂ from Milk Yield Improvement (tonnes/year)
                   <InfoTooltip 
                     description="CO₂ emissions avoided due to increased milk yield efficiency"
-                    formula="(L/cow/day × Days × Number of cows) × 3.4 kg CO₂/year"
+                    formula="(Litres per cow per day × Number of days × Number of cows) × 3.4 kg CO₂/year"
                   />
                   <div className="input-with-button">
                     <input
@@ -1058,6 +1104,16 @@ function App() {
                     value={defaults.trailerCost}
                     onChange={(e) => handleDefaultsChange('trailerCost', e.target.value)}
                     min="0"
+                  />
+                </div>
+                <div className="modal-input-group">
+                  <label>Trailer Capacity (tonnes)</label>
+                  <input
+                    type="number"
+                    value={defaults.trailerCapacity}
+                    onChange={(e) => handleDefaultsChange('trailerCapacity', e.target.value)}
+                    min="0"
+                    step="0.1"
                   />
                 </div>
                 <div className="modal-input-group">
