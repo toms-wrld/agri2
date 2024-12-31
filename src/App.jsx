@@ -157,7 +157,7 @@ function App() {
   const calculateShredding = () => {
     const rawPHR = calculateRawPHRRequired()
     const fymPurchased = calculateFYMPurchased()
-    return (2500*0.7*fymPurchased)/(Number(formData.croppingCycles)*Number(formData.landholding))  // Fixed cost from Excel
+    return (2500*0.7*fymPurchased)/(Number(formData.croppingCycles)*5)  // Fixed cost from Excel
   }
 
   const calculateBajrangBan = () => {
