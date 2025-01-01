@@ -20,6 +20,10 @@ const RoundTo2Decimal = (number) => {
   return Math.round(number * 100) / 100
 }
 
+const roundToInteger = (number) => {
+  return Math.ceil(number);
+}
+
 const InfoTooltip = ({ formula, description }) => (
   <span className="info-tooltip">
     ⓘ
@@ -64,7 +68,8 @@ function App() {
   const [editingDefault, setEditingDefault] = useState(null)
   const [isBreakdownVisible, setIsBreakdownVisible] = useState(true)
   const [showReminder, setShowReminder] = useState(false)
-  const [activeSection, setActiveSection] = useState('fym'); // 'fym' or 'fodder'
+  const [activeSection, setActiveSection] = useState('fym')
+  const [displayUnit, setDisplayUnit] = useState('tonnes')
 
   const [defaults, setDefaults] = useState({
     residuePerCycle: 5, // tonnes
@@ -86,7 +91,18 @@ function App() {
     milkingDaysDefault: 150,  // days
   })
 
-  const roundToInteger = (num) => Math.round(num);
+  const convertToTrolleys = (tonnes) => {
+    return roundToInteger(tonnes / 1.5)
+  }
+
+  const formatUnitValue = (tonnes) => {
+    const value = displayUnit === 'tonnes' ? tonnes : convertToTrolleys(tonnes)
+    return RoundTo2Decimal(value)
+  }
+
+  const getUnitLabel = () => {
+    return displayUnit === 'tonnes' ? 'tonnes' : 'trolleys'
+  }
 
   const calculateFarmerCategory = (landholding) => {
     if (landholding < 1) return "Marginal"
@@ -452,19 +468,30 @@ function App() {
               </div>
 
               <div className="input-group">
-                <label>
-                  5. Average Annual PHR Generation (tonnes)
-                  <InfoTooltip 
-                    description="Total post-harvest residue generated annually"
-                    formula="Number of cycles × Residue per cycle × Land holding"
-                  />
-                  <input
-                    type="number"
-                    value={calculatePHR()}
-                    readOnly
-                    className="readonly"
-                  />
-                </label>
+                <div className="input-group-header">
+                  <label>
+                    5. Average Annual PHR Generation
+                    <InfoTooltip 
+                      description={`Total post-harvest residue generated annually (1 trolley = 1.5 tonnes)`}
+                      formula="Number of cycles × Residue per cycle × Land holding"
+                    />
+                  </label>
+                  <div className="unit-toggle-inline">
+                    <select
+                      value={displayUnit}
+                      onChange={(e) => setDisplayUnit(e.target.value)}
+                    >
+                      <option value="tonnes">Tonnes</option>
+                      <option value="trolleys">Trolleys</option>
+                    </select>
+                  </div>
+                </div>
+                <input
+                  type="number"
+                  value={formatUnitValue(calculatePHR())}
+                  readOnly
+                  className="readonly"
+                />
               </div>
 
               <div className="input-group">
@@ -503,74 +530,107 @@ function App() {
               </div>
 
               <div className="input-group">
-                <label>
-                  8. FYM Used Annually (tonnes):
-                  <InfoTooltip 
-                    description="Total Farm Yard Manure used per year"
-                    formula="Number of cycles × FYM per cycle × Land holding"
-                  />
-                  <div className="input-with-button">
-                    <input
-                      type="number"
-                      value={RoundTo2Decimal(calculateFYMUsed())}
-                      readOnly
-                      className="readonly"
+                <div className="input-group-header">
+                  <label>
+                    8. FYM Used Annually
+                    <InfoTooltip 
+                      description={`Total Farm Yard Manure used per year (1 trolley = 1.5 tonnes)`}
+                      formula="Number of cycles × FYM per cycle × Land holding"
                     />
-                    <button 
-                      className="defaults-button"
-                      onClick={() => {
-                        setEditingDefault('fymPerCycle')
-                        setShowDefaultsModal(true)
-                      }}
+                  </label>
+                  <div className="unit-toggle-inline">
+                    <select
+                      value={displayUnit}
+                      onChange={(e) => setDisplayUnit(e.target.value)}
                     >
-                      Change Defaults
-                    </button>
+                      <option value="tonnes">Tonnes</option>
+                      <option value="trolleys">Trolleys</option>
+                    </select>
                   </div>
-                </label>
-              </div>
-
-              <div className="input-group">
-                <label>
-                  9. FYM Generated In-house Annually (tonnes):
-                  <InfoTooltip 
-                    description="FYM generated by cow(s) annually"
-                    formula=<>(20% efficiency × 10 kg cowdung per cow per day × 365 days x number of cows) / 1000 = 0.73 tonnes/year x number of cows
-                            <br />(Assumes 20 kg cowdung/day/cow, out of which 50% is used for FYM, 20% conversion efficiency of cowdung to FYM)</>
-                  />
-                  <div className="input-with-button">
-                    <input
-                      type="number"
-                      value={RoundTo2Decimal(calculateFYMGenerated())}
-                      readOnly
-                      className="readonly"
-                    />
-                    <button 
-                      className="defaults-button"
-                      onClick={() => {
-                        setEditingDefault('fymPerCow')
-                        setShowDefaultsModal(true)
-                      }}
-                    >
-                      Change Defaults
-                    </button>
-                  </div>
-                </label>
-              </div>
-
-              <div className="input-group">
-                <label>
-                  10. FYM Purchased Annually (tonnes):
-                  <InfoTooltip 
-                    description="Additional FYM needed to be purchased"
-                    formula="FYM Used - FYM Generated (if positive)"
-                  />
+                </div>
+                <div className="input-with-button">
                   <input
                     type="number"
-                    value={calculateFYMPurchased()}
+                    value={formatUnitValue(calculateFYMUsed())}
                     readOnly
                     className="readonly"
                   />
-                </label>
+                  <button 
+                    className="defaults-button"
+                    onClick={() => {
+                      setEditingDefault('fymPerCycle')
+                      setShowDefaultsModal(true)
+                    }}
+                  >
+                    Change Defaults
+                  </button>
+                </div>
+              </div>
+
+              <div className="input-group">
+                <div className="input-group-header">
+                  <label>
+                    9. FYM Generated In-house Annually
+                    <InfoTooltip 
+                      description={`FYM generated by cow(s) annually (1 trolley = 1.5 tonnes)`}
+                      formula=<>(20% efficiency × 10 kg cowdung per cow per day × 365 days x number of cows) / 1000 = 0.73 tonnes/year x number of cows
+                              <br />(Assumes 20 kg cowdung/day/cow, out of which 50% is used for FYM, 20% conversion efficiency of cowdung to FYM)</>
+                    />
+                  </label>
+                  <div className="unit-toggle-inline">
+                    <select
+                      value={displayUnit}
+                      onChange={(e) => setDisplayUnit(e.target.value)}
+                    >
+                      <option value="tonnes">Tonnes</option>
+                      <option value="trolleys">Trolleys</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="input-with-button">
+                  <input
+                    type="number"
+                    value={formatUnitValue(calculateFYMGenerated())}
+                    readOnly
+                    className="readonly"
+                  />
+                  <button 
+                    className="defaults-button"
+                    onClick={() => {
+                      setEditingDefault('fymPerCow')
+                      setShowDefaultsModal(true)
+                    }}
+                  >
+                    Change Defaults
+                  </button>
+                </div>
+              </div>
+
+              <div className="input-group">
+                <div className="input-group-header">
+                  <label>
+                    10. FYM Purchased Annually
+                    <InfoTooltip 
+                      description={`Additional FYM needed to be purchased (1 trolley = 1.5 tonnes)`}
+                      formula="FYM Used - FYM Generated (if positive)"
+                    />
+                  </label>
+                  <div className="unit-toggle-inline">
+                    <select
+                      value={displayUnit}
+                      onChange={(e) => setDisplayUnit(e.target.value)}
+                    >
+                      <option value="tonnes">Tonnes</option>
+                      <option value="trolleys">Trolleys</option>
+                    </select>
+                  </div>
+                </div>
+                <input
+                  type="number"
+                  value={formatUnitValue(calculateFYMPurchased())}
+                  readOnly
+                  className="readonly"
+                />
               </div>
 
               <div className="input-group">
@@ -703,17 +763,28 @@ function App() {
           {activeSection === 'fodder' && (
             <div className="fodder-section">
               <div className="input-group">
-                <label>
-                  14. Average annual dry fodder requirement (tonnes)
-                  <InfoTooltip 
-                    description="Total dry fodder needed annually for all cattle"
-                    formula="Dry fodder = Number of milking cattle × Daily fodder per cow × 365 / 1000"
-                  />
-                </label>
+                <div className="input-group-header">
+                  <label>
+                    14. Average annual dry fodder requirement
+                    <InfoTooltip 
+                      description={`Total dry fodder needed annually for all cattle (1 trolley = 1.5 tonnes)`}
+                      formula="Dry fodder = Number of milking cattle × Daily fodder per cow × 365 / 1000"
+                    />
+                  </label>
+                  <div className="unit-toggle-inline">
+                    <select
+                      value={displayUnit}
+                      onChange={(e) => setDisplayUnit(e.target.value)}
+                    >
+                      <option value="tonnes">Tonnes</option>
+                      <option value="trolleys">Trolleys</option>
+                    </select>
+                  </div>
+                </div>
                 <div className="input-with-button">
                   <input
                     type="number"
-                    value={RoundTo2Decimal(calculateDryFodderRequirement())}
+                    value={formatUnitValue(calculateDryFodderRequirement())}
                     readOnly
                     className="readonly"
                   />
@@ -749,19 +820,30 @@ function App() {
               </div>
 
               <div className="input-group">
-                <label>
-                  16. Total purchased dry fodder (tonnes)
-                  <InfoTooltip 
-                    description="Amount of fodder that needs to be purchased"
-                    formula="Purchased fodder = Annual requirement × Purchase percentage / 100"
-                  />
-                  <input
-                    type="number"
-                    value={RoundTo2Decimal(calculateTotalPurchasedFodder())}
-                    readOnly
-                    className="readonly"
-                  />
-                </label>
+                <div className="input-group-header">
+                  <label>
+                    16. Total purchased dry fodder
+                    <InfoTooltip 
+                      description={`Amount of fodder that needs to be purchased (1 trolley = 1.5 tonnes)`}
+                      formula="Purchased fodder = Annual requirement × Purchase percentage / 100"
+                    />
+                  </label>
+                  <div className="unit-toggle-inline">
+                    <select
+                      value={displayUnit}
+                      onChange={(e) => setDisplayUnit(e.target.value)}
+                    >
+                      <option value="tonnes">Tonnes</option>
+                      <option value="trolleys">Trolleys</option>
+                    </select>
+                  </div>
+                </div>
+                <input
+                  type="number"
+                  value={formatUnitValue(calculateTotalPurchasedFodder())}
+                  readOnly
+                  className="readonly"
+                />
               </div>
 
               <div className="input-group">
