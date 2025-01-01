@@ -234,7 +234,7 @@ select:focus {
 
 /* Make readonly inputs visually distinct */
 .readonly {
-  background: #f1f5f9;
+  background: #ecf2f8;
   border: 1px solid #e2e8f0;
   color: var(--text-light);
   cursor: not-allowed;
