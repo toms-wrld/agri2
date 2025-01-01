@@ -930,7 +930,7 @@ input, select {
   bottom: calc(100% + 1rem);
   right: 0;
   width: 350px;
-  height: 800%;
+  height: 75vh;
   background: white;
   border-radius: 1rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
