@@ -46,7 +46,7 @@ An interactive web-based calculator designed to help farmers optimize their agri
 ## Installation
 
 1. Clone the repository: <br>
-   `git clone https://github.com/yourusername/agricultural-calculator.git` <br>
+   `git clone https://github.com/toms-wrld/agri2.git` <br>
 
 2. Install dependencies: <br>
    `cd agricultural-calculator` <br>
