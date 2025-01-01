@@ -1076,3 +1076,48 @@ input, select {
   }
 }
 
+/* Add to the existing message styles */
+.message.assistant {
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.message.assistant p {
+  margin: 0.5rem 0;
+}
+
+.message.assistant p:first-child {
+  margin-top: 0;
+}
+
+.message.assistant p:last-child {
+  margin-bottom: 0;
+}
+
+.message.assistant pre {
+  margin: 0.75rem 0;
+  white-space: pre-wrap;
+}
+
+.message.assistant code {
+  font-family: monospace;
+}
+
+.message.assistant ul,
+.message.assistant ol {
+  margin: 0.5rem 0 0.5rem 1.5rem;
+}
+
+.message.assistant table {
+  margin: 0.75rem 0;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.message.assistant th,
+.message.assistant td {
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+  text-align: left;
+}
+
