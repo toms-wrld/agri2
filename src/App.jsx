@@ -3,6 +3,23 @@ import './App.css'
 import ParticleBackground from './components/ParticleBackground'
 import HelpChat from './components/HelpChat'
 
+const formatIndianPrice = (number) => {
+  const numStr = Math.round(number).toString()
+  if (numStr.length <= 3) return numStr
+  
+  let lastThree = numStr.substring(numStr.length - 3)
+  let remaining = numStr.substring(0, numStr.length - 3)
+  if (remaining) {
+    lastThree = ',' + lastThree
+  }
+  const formatted = remaining.replace(/\B(?=(\d{2})+(?!\d))/g, ",") + lastThree
+  return formatted
+}
+
+const RoundTo2Decimal = (number) => {
+  return Math.round(number * 100) / 100
+}
+
 const InfoTooltip = ({ formula, description }) => (
   <span className="info-tooltip">
     ⓘ
@@ -495,7 +512,7 @@ function App() {
                   <div className="input-with-button">
                     <input
                       type="number"
-                      value={calculateFYMUsed()}
+                      value={RoundTo2Decimal(calculateFYMUsed())}
                       readOnly
                       className="readonly"
                     />
@@ -523,7 +540,7 @@ function App() {
                   <div className="input-with-button">
                     <input
                       type="number"
-                      value={calculateFYMGenerated()}
+                      value={RoundTo2Decimal(calculateFYMGenerated())}
                       readOnly
                       className="readonly"
                     />
@@ -558,15 +575,15 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  11. Cost of Annual FYM Purchase (₹):
+                  11. Cost of FYM Purchase (₹):
                   <InfoTooltip 
                     description="Total cost of purchasing required FYM"
                     formula="(FYM purchased × Trailer cost / Trailer capacity) + Transport cost + Storage cost"
                   />
                   <div className="input-with-button">
                     <input
-                      type="number"
-                      value={calculateFYMCost()}
+                      type="text"
+                      value={`₹${formatIndianPrice(calculateFYMCost())}`}
                       readOnly
                       className="readonly"
                     />
@@ -585,14 +602,14 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  12. Avoided Annual Cost due to PHR compost (₹)
+                  12. Avoided cost due to PHR compost (₹)
                   <InfoTooltip 
                     description="Cost saved by making compost from PHR instead of purchasing FYM"
                     formula="Cost of FYM purchase - (Shredding cost + Bajrang ban cost + Labor cost)"
                   />
                   <input
-                    type="number"
-                    value={calculateAvoidedCost()}
+                    type="text"
+                    value={`₹${formatIndianPrice(calculateAvoidedCost())}`}
                     readOnly
                     className="readonly"
                   />
@@ -651,15 +668,15 @@ function App() {
                     <div className="breakdown-content">
                       <div className="breakdown-row">
                         <span>Shredding Cost:</span>
-                        <span>₹{calculateShredding()}</span>
+                        <span>₹{formatIndianPrice(calculateShredding())}</span>
                       </div>
                       <div className="breakdown-row">
                         <span>Bajrang Ban Cost:</span>
-                        <span>₹{calculateBajrangBan()}</span>
+                        <span>₹{formatIndianPrice(calculateBajrangBan())}</span>
                       </div>
                       <div className="breakdown-row">
                         <span>Labor Cost:</span>
-                        <span>₹{calculateLabor()}</span>
+                        <span>₹{formatIndianPrice(calculateLabor())}</span>
                       </div>
                     </div>
                   )}
@@ -696,7 +713,7 @@ function App() {
                 <div className="input-with-button">
                   <input
                     type="number"
-                    value={calculateDryFodderRequirement()}
+                    value={RoundTo2Decimal(calculateDryFodderRequirement())}
                     readOnly
                     className="readonly"
                   />
@@ -740,7 +757,7 @@ function App() {
                   />
                   <input
                     type="number"
-                    value={calculateTotalPurchasedFodder()}
+                    value={RoundTo2Decimal(calculateTotalPurchasedFodder())}
                     readOnly
                     className="readonly"
                   />
@@ -749,15 +766,15 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  17. Cost of purchase of dry fodder (₹)
+                  17. Fodder Purchase Cost (₹)
                   <InfoTooltip 
                     description="Total cost of purchasing required fodder"
                     formula="Cost = Total purchased fodder × Price per kg × 1000"
                   />
                   <div className="input-with-button">
                     <input
-                      type="number"
-                      value={calculateFodderPurchaseCost()}
+                      type="text"
+                      value={`₹${formatIndianPrice(calculateFodderPurchaseCost())}`}
                       readOnly
                       className="readonly"
                     />
@@ -782,8 +799,8 @@ function App() {
                     formula="Avoided cost = Total requirement × Price per kg × 1000 - Purchase cost"
                   />
                   <input
-                    type="number"
-                    value={calculateDryFodderRequirement() * defaults.dryFodderPricePerKg * 1000 - calculateFodderPurchaseCost()}
+                    type="text"
+                    value={`₹${formatIndianPrice(calculateDryFodderRequirement() * defaults.dryFodderPricePerKg * 1000 - calculateFodderPurchaseCost())}`}
                     readOnly
                     className="readonly"
                   />
@@ -792,7 +809,7 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  19. Expenditure for treating fodder with enzymes (₹)
+                  19. Enzyme Treatment Cost (₹)
                   <InfoTooltip 
                     description="Total cost of treating fodder with enzymes including shredding, Bajrang ban, and salts"
                     formula="Total = Shredding Cost + Bajrang Ban Cost + Salt A Cost + Salt B Cost"
@@ -851,8 +868,8 @@ function App() {
                   ) : (
                     <>
                       <input
-                        type="number"
-                        value={calculateEnzymeTreatmentCost()}
+                        type="text"
+                        value={`₹${formatIndianPrice(calculateEnzymeTreatmentCost())}`}
                         readOnly
                         className="readonly"
                       />
@@ -868,19 +885,19 @@ function App() {
                           <div className="breakdown-content">
                             <div className="breakdown-row">
                               <span>A) Shredding Cost:</span>
-                              <span>₹{calculateShreddingCostFodder()}</span>
+                              <span>₹{formatIndianPrice(calculateShreddingCostFodder())}</span>
                             </div>
                             <div className="breakdown-row">
                               <span>B) Bajrang Ban Cost:</span>
-                              <span>₹{calculateEnzymeRequirements().bajrangBanLitres * defaults.bajrangBanPrice}</span>
+                              <span>₹{formatIndianPrice(calculateEnzymeRequirements().bajrangBanLitres * defaults.bajrangBanPrice)}</span>
                             </div>
                             <div className="breakdown-row">
                               <span>C) Salt A Cost:</span>
-                              <span>₹{calculateEnzymeRequirements().saltAKg * defaults.saltAPrice}</span>
+                              <span>₹{formatIndianPrice(calculateEnzymeRequirements().saltAKg * defaults.saltAPrice)}</span>
                             </div>
                             <div className="breakdown-row">
                               <span>D) Salt B Cost:</span>
-                              <span>₹{calculateEnzymeRequirements().saltBKg * defaults.saltBPrice}</span>
+                              <span>₹{formatIndianPrice(calculateEnzymeRequirements().saltBKg * defaults.saltBPrice)}</span>
                             </div>
                           </div>
                         )}
@@ -909,8 +926,8 @@ function App() {
                   />
                   <div className="input-with-button">
                     <input
-                      type="number"
-                      value={calculateIncreasedMilkRevenue()}
+                      type="text"
+                      value={`₹${formatIndianPrice(calculateIncreasedMilkRevenue())}`}
                       readOnly
                       className="readonly"
                     />
@@ -935,8 +952,8 @@ function App() {
                     formula="(Annual fodder requirement × ₹4.5/kg × 1000) - (Fodder purchase cost + Enzyme treatment cost) + Milk revenue"
                   />
                   <input
-                    type="number"
-                    value={calculateOverallGain()}
+                    type="text"
+                    value={`₹${formatIndianPrice(calculateOverallGain())}`}
                     readOnly
                     className="readonly"
                   />
@@ -987,7 +1004,7 @@ function App() {
                   />
                   <input
                     type="number"
-                    value={calculateOverallGainPercentage()}
+                    value={RoundTo2Decimal(calculateOverallGainPercentage())}
                     readOnly
                     className="readonly"
                   />
@@ -1003,7 +1020,7 @@ function App() {
                   />
                   <input
                     type="number"
-                    value={calculateRevenuePercentage()}
+                    value={RoundTo2Decimal(calculateRevenuePercentage())}
                     readOnly
                     className="readonly"
                   />
@@ -1019,7 +1036,7 @@ function App() {
                   />
                   <input
                     type="number"
-                    value={calculateDirectCO2Avoided()}
+                    value={RoundTo2Decimal(calculateDirectCO2Avoided())}
                     readOnly
                     className="readonly"
                   />
@@ -1034,8 +1051,8 @@ function App() {
                     formula="Milk yield increase × Number of cows × Price per liter × Milking days"
                   />
                   <input
-                    type="number"
-                    value={calculateIncreasedMilkRevenue()}
+                    type="text"
+                    value={`₹${formatIndianPrice(calculateIncreasedMilkRevenue())}`}
                     readOnly
                     className="readonly"
                   />
@@ -1052,7 +1069,7 @@ function App() {
                   <div className="input-with-button">
                     <input
                       type="number"
-                      value={calculateMilkYieldCO2Avoided()}
+                      value={RoundTo2Decimal(calculateMilkYieldCO2Avoided())}
                       readOnly
                       className="readonly"
                     />

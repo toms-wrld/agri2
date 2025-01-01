@@ -152,7 +152,7 @@ const HelpChat = () => {
         className={`help-button ${isOpen ? 'open' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
       >
-        {isOpen ? '×' : '?'}
+        {isOpen ? 'x' : '?'}
         <span className="help-tooltip">Need help?</span>
       </button>
 

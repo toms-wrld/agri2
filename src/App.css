@@ -904,7 +904,7 @@ input, select {
 
 .help-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .help-button .help-tooltip {
@@ -922,7 +922,7 @@ input, select {
 }
 
 .help-button:hover .help-tooltip {
-  opacity: 1;
+  opacity: 0.9;
 }
 
 .chat-window {
@@ -961,6 +961,7 @@ input, select {
 .chat-header h3 {
   margin: 0;
   font-size: 1.1rem;
+  background-color: var(--primary);
 }
 
 .close-chat {
@@ -1018,7 +1019,7 @@ input, select {
 }
 
 .chat-input button {
-  background: var(--primary);
+  background: rgb(7, 119, 18);
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
