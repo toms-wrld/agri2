@@ -940,6 +940,15 @@ input, select {
   animation: slideUp 0.3s ease;
 }
 
+@media (max-width: 768px) { /* For tablets and smaller devices */
+  .chat-window {
+      width: 90%; /* Takes most of the screen width */
+      height: 80vh !important; /* Reduces height on smaller screens */
+      bottom: 10px; /* Adjust placement for smaller screens */
+      right: 10px;
+  }
+}
+
 .chat-header {
   padding: 1rem;
   background: var(--primary);
