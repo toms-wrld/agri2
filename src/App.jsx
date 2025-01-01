@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 import ParticleBackground from './components/ParticleBackground'
+import HelpChat from './components/HelpChat'
 
 const InfoTooltip = ({ formula, description }) => (
   <span className="info-tooltip">
@@ -1363,6 +1364,8 @@ function App() {
           </div>
         </div>
       )}
+
+      <HelpChat />
     </div>
   )
 }
