@@ -45,17 +45,17 @@ An interactive web-based calculator designed to help farmers optimize their agri
 
 ## Installation
 
-1. Clone the repository:
-   `git clone https://github.com/yourusername/agricultural-calculator.git`
+1. Clone the repository: <br>
+   `git clone https://github.com/yourusername/agricultural-calculator.git` <br>
 
-2. Install dependencies:
-   `cd agricultural-calculator`
+2. Install dependencies: <br>
+   `cd agricultural-calculator` <br>
    `npm install`
 
-3. (optional) Create a `.env` file in the root directory and add your Gemini API key:
+3. (optional) Create a `.env` file in the root directory and add your Gemini API key: <br>
    `VITE_GEMINI_API_KEY=your_api_key_here`
 
-4. Run the development server:
+4. Run the development server: <br>
    `npm run dev`
 
 5. Open your browser and navigate to `http://localhost:5173` (or the link given in the terminal) to use the calculator.
