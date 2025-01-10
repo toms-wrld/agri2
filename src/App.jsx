@@ -1350,7 +1350,7 @@ function App() {
       </div>
 
       <footer className="footer">
-        <p>Website made by: Divyajyoti Biswal and Sarthak Chavhan</p>
+        <p>Made by: Divyajyoti Biswal and Sarthak Chavhan</p>
         <p>Under the Guidance of Dr. Sachin Mandavgane</p>
         <p>
           Source Code:{" "}
