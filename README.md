@@ -1,4 +1,4 @@
-# Agricultural Calculator
+# FYM & Fodder Optimizer
 
 An interactive web-based calculator designed to help farmers optimize their agricultural practices by calculating Farm Yard Manure (FYM) usage, fodder requirements, and environmental impact assessment. By using the Bajrang Ban and Other Agricultural Practices.
 
