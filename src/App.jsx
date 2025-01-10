@@ -1387,7 +1387,7 @@ function App() {
                     className="download-button"
                   >
                     {({ blob, url, loading, error }) =>
-                      loading ? 'Generating report...' : 'Download Complete Report as PDF'
+                      loading ? 'Generating report...' : 'Download Complete Report'
                     }
                   </PDFDownloadLink>
                 </div>
@@ -1397,15 +1397,6 @@ function App() {
         </div>
       </div>
 
-      {/* <div>
-        <h1>Analysis Report</h1>
-        <PDFDownloadLink
-          document={<MyPdfReport analysisData={analysisData} />}
-          fileName="analysis_report.pdf"
-        >
-          {({ loading }) => (loading ? 'Generating PDF...' : 'Download PDF')}
-        </PDFDownloadLink>
-      </div> */}
 
       <footer className="footer">
         <p>Made by: Divyajyoti Biswal and Sarthak Chavhan</p>
