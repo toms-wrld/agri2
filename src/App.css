@@ -381,6 +381,25 @@ input:checked + .slider:before {
   opacity: 0.9;
 }
 
+.github-link {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.github-link:hover {
+  color: #61dafb; /* A light blue color for hover effect */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer p {
+    font-size: 0.85rem;
+  }
+}
+
+
 /* Modal Styles */
 .modal {
   position: fixed;
@@ -1296,6 +1315,36 @@ input, select {
   
   .analogy-card strong {
     font-size: 1.2rem;
+  }
+}
+
+.report-download {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.download-button {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.15);
+}
+
+.download-button:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.2);
+}
+
+@media (max-width: 768px) {
+  .download-button {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.9rem;
   }
 }
 
