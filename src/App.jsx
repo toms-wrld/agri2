@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import Chart from 'chart.js/auto'
 import './App.css'
 import ParticleBackground from './components/ParticleBackground'
 import HelpChat from './components/HelpChat'
@@ -64,6 +65,15 @@ function App() {
     annualIncome: '',
   })
 
+  const [unitStates, setUnitStates] = useState({
+    phrUnit: 'tonnes',
+    fymUsedUnit: 'trolleys',
+    fymGeneratedUnit: 'trolleys',
+    fymPurchasedUnit: 'trolleys',
+    dryFodderUnit: 'tonnes',
+    purchasedFodderUnit: 'tonnes'
+  })
+
   const [showDefaultsModal, setShowDefaultsModal] = useState(false)
   const [editingDefault, setEditingDefault] = useState(null)
   const [isBreakdownVisible, setIsBreakdownVisible] = useState(true)
@@ -77,7 +87,7 @@ function App() {
     fymPerCow: ((0.2 * 10) * 365) / 1000, // tonnes per cow per year
     trailerCost: 3000, // rupees
     trailerCapacity: 1.5, // tonnes
-    tonnsPerTrolley: 2.5, //can be changed later
+    tonnsPerTrolley: 1.5, //can be changed later
     transportCost: 0, // rupees
     storageCost: 0, // rupees
     dryFodderPerCow: 3.5, // kg per day
@@ -92,8 +102,87 @@ function App() {
     milkingDaysDefault: 150,  // days
   })
 
+  const chartRef = useRef(null)
+  const chartInstance = useRef(null)
+
+  useEffect(() => {
+    if (activeSection === 'analytics' && chartRef.current) {
+      // Destroy existing chart if it exists
+      if (chartInstance.current) {
+        chartInstance.current.destroy()
+      }
+
+      const ctx = chartRef.current.getContext('2d')
+      const directCO2 = calculateDirectCO2Avoided()
+      const milkYieldCO2 = calculateMilkYieldCO2Avoided()
+
+      chartInstance.current = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Direct CO₂ Avoided', 'CO₂ Avoided from Milk Yield'],
+          datasets: [{
+            data: [directCO2, milkYieldCO2],
+            backgroundColor: [
+              'rgba(46, 125, 50, 0.8)',  // Green
+              'rgba(76, 175, 80, 0.8)'   // Light Green
+            ],
+            borderColor: [
+              'rgba(46, 125, 50, 1)',
+              'rgba(76, 175, 80, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                padding: 20,
+                font: {
+                  size: 14
+                }
+              }
+            },
+            title: {
+              display: true,
+              text: `Total CO₂ Avoided: ${RoundTo2Decimal(calculateTotalCO2Avoided())} tonnes/year`,
+              font: {
+                size: 16,
+                weight: 'bold'
+              },
+              padding: {
+                top: 10,
+                bottom: 30
+              }
+            }
+          }
+        }
+      })
+    }
+  }, [activeSection, formData.milkingCattle, formData.landholding, formData.croppingCycles])
+
+  const handleUnitChange = (point, unit) => {
+    setUnitStates(prev => ({
+      ...prev,
+      [point]: unit
+    }))
+  }
+
+  const formatUnitValueForPoint = (tonnes, point) => {
+    const unit = unitStates[point]
+    const value = unit === 'tonnes' ? tonnes : convertToTrolleys(tonnes)
+    return unit === 'tonnes' ? RoundTo2Decimal(value) : value
+  }
+
+  const getUnitLabelForPoint = (point) => {
+    return unitStates[point]
+  }
+
   const convertToTrolleys = (tonnes) => {
-    return roundToInteger(tonnes / defaults.tonnsPerTrolley)
+    return Math.round(tonnes / defaults.tonnsPerTrolley)
   }
 
   const formatUnitValue = (tonnes) => {
@@ -343,11 +432,32 @@ function App() {
     return (increasedYieldPerYear * 3.4) / 1000
   }
 
+  const calculateTotalCO2Avoided = () => {
+    return calculateDirectCO2Avoided() + calculateMilkYieldCO2Avoided()
+  }
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: 'smooth'
     })
+  }
+
+  const calculateCO2Analogies = (totalCO2) => {
+    // Average tree absorbs about 22 kg CO2 per year
+    const treesEquivalent = Math.round(totalCO2 * 1000 / 22)
+    
+    // Average car emits about 4.6 tonnes of CO2 per year
+    const carsEquivalent = Math.round(totalCO2 / 4.6)
+    
+    // Average household emits about 7.5 tonnes of CO2 per year
+    const householdsEquivalent = Math.round(totalCO2 / 7.5)
+    
+    return {
+      trees: treesEquivalent,
+      cars: carsEquivalent,
+      households: householdsEquivalent
+    }
   }
 
   return (
@@ -395,7 +505,7 @@ function App() {
 
       <div className="content-wrapper">
         <div className="calculator">
-          <h1>Agricultural Calculator</h1>
+          <h1>FYM & Fodder Optimizer</h1>
           
           {activeSection === 'fym' && (
             <div className="fym-section">
@@ -412,6 +522,7 @@ function App() {
                     onChange={handleInputChange}
                     min="0"
                     step="0.1"
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.target.blur(); } }}
                   />
                 </label>
               </div>
@@ -488,8 +599,8 @@ function App() {
                   </label>
                   <div className="unit-toggle-inline">
                     <select
-                      value={displayUnit}
-                      onChange={(e) => setDisplayUnit(e.target.value)}
+                      value={unitStates.phrUnit}
+                      onChange={(e) => handleUnitChange('phrUnit', e.target.value)}
                     >
                       <option value="tonnes">Tonnes</option>
                       <option value="trolleys">Trolleys</option>
@@ -498,7 +609,7 @@ function App() {
                 </div>
                 <input
                   type="number"
-                  value={formatUnitValue(calculatePHR())}
+                  value={formatUnitValueForPoint(calculatePHR(), 'phrUnit')}
                   readOnly
                   className="readonly"
                 />
@@ -517,6 +628,7 @@ function App() {
                     value={formData.milkingCattle}
                     onChange={handleInputChange}
                     min="0"
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.target.blur(); } }}
                   />
                 </label>
               </div>
@@ -535,6 +647,7 @@ function App() {
                     onChange={handleInputChange}
                     min="0"
                     step="0.1"
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.target.blur(); } }}
                   />
                 </label>
               </div>
@@ -550,8 +663,8 @@ function App() {
                   </label>
                   <div className="unit-toggle-inline">
                     <select
-                      value={displayUnit}
-                      onChange={(e) => setDisplayUnit(e.target.value)}
+                      value={unitStates.fymUsedUnit}
+                      onChange={(e) => handleUnitChange('fymUsedUnit', e.target.value)}
                     >
                       <option value="tonnes">Tonnes</option>
                       <option value="trolleys">Trolleys</option>
@@ -561,7 +674,7 @@ function App() {
                 <div className="input-with-button">
                   <input
                     type="number"
-                    value={formatUnitValue(calculateFYMUsed())}
+                    value={formatUnitValueForPoint(calculateFYMUsed(), 'fymUsedUnit')}
                     readOnly
                     className="readonly"
                   />
@@ -589,8 +702,8 @@ function App() {
                   </label>
                   <div className="unit-toggle-inline">
                     <select
-                      value={displayUnit}
-                      onChange={(e) => setDisplayUnit(e.target.value)}
+                      value={unitStates.fymGeneratedUnit}
+                      onChange={(e) => handleUnitChange('fymGeneratedUnit', e.target.value)}
                     >
                       <option value="tonnes">Tonnes</option>
                       <option value="trolleys">Trolleys</option>
@@ -600,7 +713,7 @@ function App() {
                 <div className="input-with-button">
                   <input
                     type="number"
-                    value={formatUnitValue(calculateFYMGenerated())}
+                    value={formatUnitValueForPoint(calculateFYMGenerated(), 'fymGeneratedUnit')}
                     readOnly
                     className="readonly"
                   />
@@ -627,8 +740,8 @@ function App() {
                   </label>
                   <div className="unit-toggle-inline">
                     <select
-                      value={displayUnit}
-                      onChange={(e) => setDisplayUnit(e.target.value)}
+                      value={unitStates.fymPurchasedUnit}
+                      onChange={(e) => handleUnitChange('fymPurchasedUnit', e.target.value)}
                     >
                       <option value="tonnes">Tonnes</option>
                       <option value="trolleys">Trolleys</option>
@@ -637,7 +750,7 @@ function App() {
                 </div>
                 <input
                   type="number"
-                  value={formatUnitValue(calculateFYMPurchased())}
+                  value={formatUnitValueForPoint(calculateFYMPurchased(), 'fymPurchasedUnit')}
                   readOnly
                   className="readonly"
                 />
@@ -783,8 +896,8 @@ function App() {
                   </label>
                   <div className="unit-toggle-inline">
                     <select
-                      value={displayUnit}
-                      onChange={(e) => setDisplayUnit(e.target.value)}
+                      value={unitStates.dryFodderUnit}
+                      onChange={(e) => handleUnitChange('dryFodderUnit', e.target.value)}
                     >
                       <option value="tonnes">Tonnes</option>
                       <option value="trolleys">Trolleys</option>
@@ -794,7 +907,7 @@ function App() {
                 <div className="input-with-button">
                   <input
                     type="number"
-                    value={formatUnitValue(calculateDryFodderRequirement())}
+                    value={formatUnitValueForPoint(calculateDryFodderRequirement(), 'dryFodderUnit')}
                     readOnly
                     className="readonly"
                   />
@@ -825,6 +938,7 @@ function App() {
                     min="0"
                     max="100"
                     step="1"
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.target.blur(); } }}
                   />
                 </label>
               </div>
@@ -840,8 +954,8 @@ function App() {
                   </label>
                   <div className="unit-toggle-inline">
                     <select
-                      value={displayUnit}
-                      onChange={(e) => setDisplayUnit(e.target.value)}
+                      value={unitStates.purchasedFodderUnit}
+                      onChange={(e) => handleUnitChange('purchasedFodderUnit', e.target.value)}
                     >
                       <option value="tonnes">Tonnes</option>
                       <option value="trolleys">Trolleys</option>
@@ -850,7 +964,7 @@ function App() {
                 </div>
                 <input
                   type="number"
-                  value={formatUnitValue(calculateTotalPurchasedFodder())}
+                  value={formatUnitValueForPoint(calculateTotalPurchasedFodder(), 'purchasedFodderUnit')}
                   readOnly
                   className="readonly"
                 />
@@ -1029,7 +1143,7 @@ function App() {
                         setEditingDefault('milkYield')
                         setShowDefaultsModal(true)
                       }}
-                    >
+                    > 
                       Change Defaults
                     </button>
                   </div>
@@ -1083,6 +1197,7 @@ function App() {
                     value={formData.annualIncome}
                     onChange={handleInputChange}
                     min="0"
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.target.blur(); } }}
                   />
                 </label>
               </div>
@@ -1156,7 +1271,7 @@ function App() {
                   6. Avoided CO₂ from Milk Yield Improvement Annually (tonnes/year)
                   <InfoTooltip 
                     description="CO₂ emissions avoided due to increased milk yield efficiency"
-                    formula="(Litres per cow per day × Number of days × Number of cows) × 3.4 kg CO₂/year"
+                    formula="(Litres per cow per day × 3.4 kg CO₂/year × Number of cows) × Number of days/year"
                   />
                   <div className="input-with-button">
                     <input
@@ -1176,6 +1291,56 @@ function App() {
                     </button>
                   </div>
                 </label>
+              </div>
+
+              <div className="input-group">
+                <label>
+                  7. Total CO₂ Avoided (tonnes/year)
+                  <InfoTooltip 
+                    description="Total CO₂ emissions avoided from both PHR utilization and improved milk yield"
+                    formula="Direct Avoided GHG Emissions + Avoided CO₂ from Milk Yield Improvement"
+                  />
+                  <input
+                    type="number"
+                    value={RoundTo2Decimal(calculateTotalCO2Avoided())}
+                    readOnly
+                    className="readonly"
+                  />
+                </label>
+              </div>
+
+              <div className="analytics-visualization">
+                <h3>CO₂ Emissions Reduction Breakdown</h3>
+                <div className="chart-container">
+                  <canvas ref={chartRef} id="co2Chart"></canvas>
+                </div>
+                <div className="co2-analogies">
+                  <h4>What does this CO₂ reduction mean?</h4>
+                  {(() => {
+                    const totalCO2 = calculateTotalCO2Avoided()
+                    const analogies = calculateCO2Analogies(totalCO2)
+                    return (
+                      <div className="analogy-cards">
+                        <div className="analogy-card">
+                          <span className="analogy-icon">🌳</span>
+                          <p>Equivalent to the annual CO₂ absorption of</p>
+                          <strong>{analogies.trees.toLocaleString()} trees</strong>
+                        </div>
+                        <div className="analogy-card">
+                          <span className="analogy-icon">🚗</span>
+                          <p>Equal to removing</p>
+                          <strong>{analogies.cars.toLocaleString()} cars</strong>
+                          <p>from the road for a year</p>
+                        </div>
+                        <div className="analogy-card">
+                          <span className="analogy-icon">🏠</span>
+                          <p>Same as the annual emissions of</p>
+                          <strong>{analogies.households.toLocaleString()} households</strong>
+                        </div>
+                      </div>
+                    )
+                  })()}
+                </div>
               </div>
             </div>
           )}
@@ -1463,7 +1628,7 @@ function App() {
               </button>
             </div>
             <p className="reminder-message">
-              Please complete the FYM Calculations section before proceeding to Fodder Calculations. 
+              Please complete the FYM Calculations section before proceeding to next Calculations. 
               This ensures accurate calculations as some values are dependent on previous results.
             </p>
             <div className="reminder-actions">
