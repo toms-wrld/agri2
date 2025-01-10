@@ -1220,7 +1220,23 @@ function App() {
 
               <div className="input-group">
                 <label>
-                  3. Revenue Impact from Sales (%)
+                  3. Added Revenue from Sales Annually (₹)
+                  <InfoTooltip 
+                    description="Additional revenue from increased milk yield"
+                    formula="Milk yield increase × Number of cows × Price per liter × Milking days"
+                  />
+                  <input
+                    type="text"
+                    value={`₹${formatIndianPrice(calculateIncreasedMilkRevenue())}`}
+                    readOnly
+                    className="readonly"
+                  />
+                </label>
+              </div>
+
+              <div className="input-group">
+                <label>
+                  4. Revenue Impact from Sales (%)
                   <InfoTooltip 
                     description="Percentage of additional revenue from increased milk yield"
                     formula="(Revenue from increased milk yield × 100) / Annual income"
@@ -1234,9 +1250,10 @@ function App() {
                 </label>
               </div>
 
+
               <div className="input-group">
                 <label>
-                  4. Direct Avoided GHG Emissions Annually (tonnes CO₂)
+                  5. Direct Avoided GHG Emissions Annually (tonnes CO₂)
                   <InfoTooltip 
                     description="CO₂ emissions avoided by not burning PHR"
                     formula="annual PHR generation (tonnes) × (7190 kg CO₂ / (1000 × 5 tonnes PHR burnt))"
@@ -1250,21 +1267,6 @@ function App() {
                 </label>
               </div>
 
-              <div className="input-group">
-                <label>
-                  5. Added Revenue from Sales Annually (₹)
-                  <InfoTooltip 
-                    description="Additional revenue from increased milk yield"
-                    formula="Milk yield increase × Number of cows × Price per liter × Milking days"
-                  />
-                  <input
-                    type="text"
-                    value={`₹${formatIndianPrice(calculateIncreasedMilkRevenue())}`}
-                    readOnly
-                    className="readonly"
-                  />
-                </label>
-              </div>
 
               <div className="input-group">
                 <label>
@@ -1348,9 +1350,21 @@ function App() {
       </div>
 
       <footer className="footer">
-        <p>Website made by : Divyajyoti Biswal and Sarthak Chavhan</p>
+        <p>Website made by: Divyajyoti Biswal and Sarthak Chavhan</p>
         <p>Under the Guidance of Dr. Sachin Mandavgane</p>
+        <p>
+          Source Code:{" "}
+          <a
+            href="https://github.com/toms-wrld/agri2"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="github-link"
+          >
+            GitHub
+          </a>
+        </p>
       </footer>
+
 
       {showDefaultsModal && (
         <div className="modal">
