@@ -3,6 +3,8 @@ import Chart from 'chart.js/auto'
 import './App.css'
 import ParticleBackground from './components/ParticleBackground'
 import HelpChat from './components/HelpChat'
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import MyPdfReport from './components/MyPdfReport';
 
 const formatIndianPrice = (number) => {
   const numStr = Math.round(number).toString()
@@ -1343,11 +1345,67 @@ function App() {
                     )
                   })()}
                 </div>
+                <div className="report-download">
+                  <PDFDownloadLink
+                    document={
+                      <MyPdfReport
+                        data={{
+                          // Basic Information
+                          landholding: formData.landholding,
+                          farmerCategory: formData.farmerCategory,
+                          milkingCattle: formData.milkingCattle,
+                          
+                          // FYM Analysis
+                          phrGeneration: RoundTo2Decimal(calculatePHR()),
+                          fymUsed: RoundTo2Decimal(calculateFYMUsed()),
+                          fymGenerated: RoundTo2Decimal(calculateFYMGenerated()),
+                          fymPurchased: RoundTo2Decimal(calculateFYMPurchased()),
+                          fymCost: calculateFYMCost(),
+                          
+                          // Fodder Analysis
+                          dryFodderRequirement: RoundTo2Decimal(calculateDryFodderRequirement()),
+                          purchasedFodder: RoundTo2Decimal(calculateTotalPurchasedFodder()),
+                          fodderPurchaseCost: calculateFodderPurchaseCost(),
+                          
+                          // Financial Impact
+                          avoidedCost: calculateAvoidedCost(),
+                          increasedRevenue: calculateIncreasedMilkRevenue(),
+                          overallGain: calculateOverallGain(),
+                          overallGainPercentage: RoundTo2Decimal(calculateOverallGainPercentage()),
+                          
+                          // Environmental Impact
+                          directCO2Avoided: RoundTo2Decimal(calculateDirectCO2Avoided()),
+                          milkYieldCO2Avoided: RoundTo2Decimal(calculateMilkYieldCO2Avoided()),
+                          totalCO2Avoided: RoundTo2Decimal(calculateTotalCO2Avoided()),
+                          
+                          // CO2 Analogies
+                          co2Analogies: calculateCO2Analogies(calculateTotalCO2Avoided())
+                        }}
+                      />
+                    }
+                    fileName="fym_fodder_optimization_report.pdf"
+                    className="download-button"
+                  >
+                    {({ blob, url, loading, error }) =>
+                      loading ? 'Generating report...' : 'Download Complete Report as PDF'
+                    }
+                  </PDFDownloadLink>
+                </div>
               </div>
             </div>
           )}
         </div>
       </div>
+
+      {/* <div>
+        <h1>Analysis Report</h1>
+        <PDFDownloadLink
+          document={<MyPdfReport analysisData={analysisData} />}
+          fileName="analysis_report.pdf"
+        >
+          {({ loading }) => (loading ? 'Generating PDF...' : 'Download PDF')}
+        </PDFDownloadLink>
+      </div> */}
 
       <footer className="footer">
         <p>Made by: Divyajyoti Biswal and Sarthak Chavhan</p>
