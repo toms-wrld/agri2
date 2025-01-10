@@ -183,32 +183,32 @@ const MyPdfReport = ({ data }) => (
       <View style={styles.section}>
         <Text style={styles.subHeader}>Environmental Impact</Text>
         <View style={styles.row}>
-          <Text style={styles.label}>Direct CO₂ Avoided:</Text>
+          <Text style={styles.label}>Direct CO2 Avoided:</Text>
           <Text style={styles.value}>{data.directCO2Avoided} tonnes/year</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>CO₂ Avoided (Milk Yield):</Text>
+          <Text style={styles.label}>CO2 Avoided (Milk Yield):</Text>
           <Text style={styles.value}>{data.milkYieldCO2Avoided} tonnes/year</Text>
         </View>
         <View style={styles.row}>
-          <Text style={styles.label}>Total CO₂ Avoided:</Text>
+          <Text style={styles.label}>Total CO2 Avoided:</Text>
           <Text style={styles.value}>{data.totalCO2Avoided} tonnes/year</Text>
         </View>
       </View>
 
       {/* CO₂ Reduction Analogies Section */}
       <View style={styles.co2Section}>
-        <Text style={[styles.subHeader, { marginTop: 0 }]}>CO₂ Reduction Analogies</Text>
+        <Text style={[styles.subHeader, { marginTop: 0 }]}>CO2 Reduction Analogies</Text>
         <View style={styles.analogyRow}>
-          <Text style={styles.analogyLabel}>🌳 Equivalent to annual CO₂ absorption of:</Text>
+          <Text style={styles.analogyLabel}> Equivalent to annual CO2 absorption of:</Text>
           <Text style={styles.analogyValue}>{data.co2Analogies.trees} trees</Text>
         </View>
         <View style={styles.analogyRow}>
-          <Text style={styles.analogyLabel}>🚗 Equal to removing:</Text>
+          <Text style={styles.analogyLabel}> Equal to removing:</Text>
           <Text style={styles.analogyValue}>{data.co2Analogies.cars} cars/year</Text>
         </View>
         <View style={styles.analogyRow}>
-          <Text style={styles.analogyLabel}>🏠 Same as annual emissions of:</Text>
+          <Text style={styles.analogyLabel}> Same as annual emissions of:</Text>
           <Text style={styles.analogyValue}>{data.co2Analogies.households} households</Text>
         </View>
       </View>
